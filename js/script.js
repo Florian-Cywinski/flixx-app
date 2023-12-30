@@ -5,27 +5,68 @@
 // https://www.themoviedb.org/
 // We using a library called swiper swiperjs.com
 
+
+// Fetch data from TMDB API
+async function fetchAPIData(endpoint) {
+    const API_KEY = '6e5325c318c178f297d866f548a3f295';
+    const API_URL = 'https://api.themoviedb.org/3/';
+
+    const response = await fetch(`${API_URL}${endpoint}?api_key=${API_KEY}&language=en-US`);
+
+    const data = await response.json();
+    return data;
+};
+
+
+async function displayPopularMovies() { // https://developer.themoviedb.org/reference/movie-popular-list
+    const {results} = await fetchAPIData('movie/popular');      // {} to destrcture the object we fetch to get the straight the array of the 20 most popular movies as object  
+
+    // To create a div / card for every movie and put it to the DOM
+    // results.slice(0, 5).forEach(movie => {    // To show the first 5 movies of the first 20 movies
+    // results.slice(-5).forEach(movie => {    // To show the last 5 movies of the first 20 movies
+    results.forEach(movie => {
+        const div = document.createElement('div');
+        div.classList.add('card');
+        div.innerHTML = `
+        <a href="movie-details.html?id=${movie.id}">
+            ${  // We use the ternary-operator - if there is an image for this movie : if there isn't an image for this movie
+                movie.poster_path
+                    ? `<img
+                    src="https://image.tmdb.org/t/p/w500${movie.poster_path}"
+                    class="card-img-top"
+                    alt="${movie.title}"
+                  />`
+                    : `<img
+                    src="images/no-image.jpg"
+                    class="card-img-top"
+                    alt="${movie.title}"
+                  />`
+            }
+        </a>
+        <div class="card-body">
+          <h5 class="card-title">${movie.title}</h5>
+          <p class="card-text">
+            <small class="text-muted">Release: ${movie.release_date}</small>
+          </p>
+        </div>`;
+
+
+        document.getElementById('popular-movies').appendChild(div);
+    })
+}
+
+
+
+
+
+
+// Page Router
 // We build a router to run specific JS scripts / specific functions on specific pages
 // The only thing we are doing in our JavaScript here is detecting which page we are on to add styling and make XHR requests relevant for the page we are on to get either movies or tv shows. 
-// console.log(window.location.pathname);  // /11-flix-app-project/flixx-app/index.html
 
 const global = {    // Object of the global state
     currentPage: window.location.pathname,  // To set the property of currentPage to window.location.pathname
 };
-console.log(global.currentPage);    
-
-
-// Highlight active link
-function highlightActiveLink() {
-    const links = document.querySelectorAll('.nav-link');
-    links.forEach(link => {
-        if (link.getAttribute('href') === global.currentPage) {
-        // /11-flix-app-project/flixx-app === /11-flix-app-project/flixx-app/
-            link.classList.add('active');
-        }
-    });
-};
-
 
 const homeDirectory = '/11-flix-app-project/flixx-app/';    // To set the home directory in a const
 
@@ -35,6 +76,7 @@ function init() {
         case homeDirectory: // For the case /11-flix-app-project/flixx-app/ (index.html)
         case `${homeDirectory}index.html`:  // For the case /11-flix-app-project/flixx-app/index.html (index.html)
             console.log('Home');
+            displayPopularMovies();
             break;  // Without the brak statement the code would run further
         case `${homeDirectory}shows.html`:  // For the case /11-flix-app-project/flixx-app/shows.html (shows.html)
             console.log('Show');
@@ -52,5 +94,20 @@ function init() {
 
     highlightActiveLink();
 };
+
+
+// Active Link
+// Highlight active link
+function highlightActiveLink() {
+    const links = document.querySelectorAll('.nav-link');
+    links.forEach(link => {
+        if (link.getAttribute('href') === global.currentPage) {
+        // /11-flix-app-project/flixx-app === /11-flix-app-project/flixx-app/
+            link.classList.add('active');
+        }
+    });
+};
+
+
 document.addEventListener('DOMContentLoaded', init);    // DOMContentLoaded runs as soon as the DOM is parsed and loaded - it calls the function init()
 

@@ -8,17 +8,23 @@
 
 // Fetch data from TMDB API
 async function fetchAPIData(endpoint) {
-    const API_KEY = '6e5325c318c178f297d866f548a3f295';
+    const API_KEY = '123456789';
     const API_URL = 'https://api.themoviedb.org/3/';
+
+    showSpinner();
 
     const response = await fetch(`${API_URL}${endpoint}?api_key=${API_KEY}&language=en-US`);
 
     const data = await response.json();
+
+    hideSpinner();
+
     return data;
 };
 
 
-async function displayPopularMovies() { // https://developer.themoviedb.org/reference/movie-popular-list
+// Display 20 most popular movies
+async function displayPopularMovies() { // https://developer.themoviedb.org/reference/movie-popular-list - to see all get options click on Response on this page
     const {results} = await fetchAPIData('movie/popular');      // {} to destrcture the object we fetch to get the straight the array of the 20 most popular movies as object  
 
     // To create a div / card for every movie and put it to the DOM
@@ -56,6 +62,52 @@ async function displayPopularMovies() { // https://developer.themoviedb.org/refe
 }
 
 
+// Display 20 most popular tv shows         
+async function displayPopularShows() { // https://developer.themoviedb.org/reference/tv-series-popular-list - to see all get options click on Response on this page
+    const {results} = await fetchAPIData('tv/popular');      // {} to destrcture the object we fetch to get the straight the array of the 20 most popular movies as object  
+
+    // To create a div / card for every tv show and put it to the DOM
+    // results.slice(0, 5).forEach(show => {    // To show the first 5 shows of the first 20 shows
+    // results.slice(-5).forEach(show => {    // To show the last 5 shows of the first 20 movies
+    results.forEach(show => {
+        const div = document.createElement('div');
+        div.classList.add('card');
+        div.innerHTML = `
+        <a href="tv-details.html?id=${show.id}">
+            ${  // We use the ternary-operator - if there is an image for this show : if there isn't an image for this show
+                show.poster_path
+                    ? `<img
+                    src="https://image.tmdb.org/t/p/w500${show.poster_path}"
+                    class="card-img-top"
+                    alt="${show.name}"
+                  />`
+                    : `<img
+                    src="images/no-image.jpg"
+                    class="card-img-top"
+                    alt="${show.name}"
+                  />`
+            }
+        </a>
+        <div class="card-body">
+          <h5 class="card-title">${show.name}</h5>
+          <p class="card-text">
+            <small class="text-muted">Air Data: ${show.first_air_date}</small>
+          </p>
+        </div>`;
+
+
+        document.getElementById('popular-shows').appendChild(div);
+    })
+}
+
+
+// To show / hide the spinner
+function showSpinner() {
+    document.querySelector('.spinner').classList.add('show');
+};
+function hideSpinner() {
+    document.querySelector('.spinner').classList.remove('show');
+};
 
 
 
@@ -80,6 +132,7 @@ function init() {
             break;  // Without the brak statement the code would run further
         case `${homeDirectory}shows.html`:  // For the case /11-flix-app-project/flixx-app/shows.html (shows.html)
             console.log('Show');
+            displayPopularShows();
             break;
         case `${homeDirectory}movie-details.html`:  // For the case /11-flix-app-project/flixx-app/movie-details.html (movie-details.html)
             console.log('Movie Details');

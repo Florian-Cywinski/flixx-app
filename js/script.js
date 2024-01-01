@@ -3,7 +3,7 @@
 // developers.themoviedb.org/3/search
 // developers.themoviedb.org/3/movies/get-movie-details
 // https://www.themoviedb.org/
-// We using a library called swiper swiperjs.com
+// We using a library called swiper swiperjs.com - for the swiper slider
 
 
 // Fetch data from TMDB API
@@ -265,6 +265,54 @@ function displayBackgroundImage(type, backgroundPath) {
 }
 
 
+// Display Slider Movies
+async function displaySlider() {
+  const {results} = await fetchAPIData('movie/now_playing');  // {} - to destructure - this way we get the array called results from the fetched object
+
+  results.forEach(movie => {
+    const div = document.createElement('div');
+    div.classList.add('swiper-slide');
+
+    div.innerHTML = `
+    <a href="movie-details.html?id=${movie.id}">
+    <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}"/>
+  </a>
+  <h4 class="swiper-rating">
+    <i class="fas fa-star text-secondary"></i> ${movie.vote_average} / 10
+  </h4>`;
+
+  document.querySelector('.swiper-wrapper').appendChild(div);
+
+  initSwiper(); // To init a couple of options
+
+  })
+}
+
+function initSwiper() {
+  const swiper = new Swiper('.swiper', {  // new Swiper is an object - we put in a class of swiper - for the options we pass in an object - all the options you can see at swiperjs.com/swiper-api
+    slidesPerView: 1, // we set it to 1 that we can specify breakpoints as well - for 500px (width) and up we set it to two - if it is 700px and up we set it to three - if it is 1200px and up we set it to four
+    spaceBetween: 30,
+    freeMode: true, // to click and drag it by ourself
+    loop: false, // because we (don't) want it to stop at the end
+    autoplay: {
+      delay: 4000,  // to show a slide for 4 sec
+      disableOnInteraction: false  // when you hover over it it stops
+    },
+    breakpoints: {
+      500: {
+        slidesPerView: 2
+      },
+      700: {
+        slidesPerView: 3
+      },
+      1200: {
+        slidesPerView: 4
+      }
+    }
+  })
+}
+
+
 // Page Router
 // We build a router to run specific JS scripts / specific functions on specific pages
 // The only thing we are doing in our JavaScript here is detecting which page we are on to add styling and make XHR requests relevant for the page we are on to get either movies or tv shows. 
@@ -280,6 +328,7 @@ function init() {
     switch (global.currentPage) {   // To test the global.currentPage value
         case homeDirectory: // For the case /11-flix-app-project/flixx-app/ (index.html)
         case `${homeDirectory}index.html`:  // For the case /11-flix-app-project/flixx-app/index.html (index.html)
+            displaySlider();
             displayPopularMovies();
             break;  // Without the brak statement the code would run further
         case `${homeDirectory}shows.html`:  // For the case /11-flix-app-project/flixx-app/shows.html (shows.html)

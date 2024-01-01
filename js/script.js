@@ -106,6 +106,7 @@ async function displayMovieDetails() {
     const movieId = window.location.search.split('=')[1]; // To get the query string (everything from the ?) - window.location.search => ?id=848326 - ...split('=') => Array [ "?id", "848326" ] - [1] is the ID we need
 
     const movie = await fetchAPIData(`movie/${movieId}`);
+    console.log(movie);  // To see all the data we can work with
 
     // Overlay for background image
     displayBackgroundImage('movie', movie.backdrop_path);  // 'movie' is the type
@@ -163,6 +164,68 @@ async function displayMovieDetails() {
 }
 
 
+// Display TV-Show Details
+async function displayShowDetails() {
+  const showId = window.location.search.split('=')[1]; // To get the query string (everything from the ?) - window.location.search => ?id=848326 - ...split('=') => Array [ "?id", "848326" ] - [1] is the ID we need
+
+  const show = await fetchAPIData(`tv/${showId}`);
+  console.log(show);  // To see all the data we can work with
+
+  // Overlay for background image
+  displayBackgroundImage('tv', show.backdrop_path);  // 'tv' is the type
+
+  const div = document.createElement('div');
+  div.innerHTML = `
+  <div class="details-top">
+  <div>
+  ${  // We use the ternary-operator - if there is an image for this show : if there isn't an image for this show
+      show.poster_path
+          ? `<img
+          src="https://image.tmdb.org/t/p/w500${show.poster_path}"
+          class="card-img-top"
+          alt="${show.name}"
+        />`
+          : `<img
+          src="images/no-image.jpg"
+          class="card-img-top"
+          alt="${show.name}"
+        />`
+  }
+  </div>
+  <div>
+    <h2>${show.name}</h2>
+    <p>
+      <i class="fas fa-star text-primary"></i>
+      ${show.vote_average.toFixed(1)} / 10
+    </p>
+    <p class="text-muted">Last Air Date: ${show.last_air_date}</p>
+    <p>
+      ${show.overview}
+    </p>
+    <h5>Genres</h5>
+    <ul class="list-group">
+      ${show.genres.map(genre => `<li>${genre.name}</li>`).join('')}
+    </ul>
+    <a href="${show.homepage}" target="_blank" class="btn">Visit show Homepage</a>
+  </div>
+</div>
+<div class="details-bottom">
+  <h2>Show Info</h2>
+  <ul>
+    <li><span class="text-secondary">Number of Episodes:</span> ${show.number_of_episodes}</li>
+    <li><span class="text-secondary">Last Episode to Air:</span> ${show.last_episode_to_air.name}</li>
+    <li><span class="text-secondary">Status:</span> ${show.status}</li>
+  </ul>
+  <h4>Production Companies</h4>
+  <div class="list-group">
+      ${show.production_companies.map(company => `<span>${company.name}</span>`).join(', ')}
+  </div>
+</div>`;
+
+document.getElementById('show-details').appendChild(div);
+}
+
+
 // To show / hide the spinner
 function showSpinner() {
     document.querySelector('.spinner').classList.add('show');
@@ -209,7 +272,6 @@ function displayBackgroundImage(type, backgroundPath) {
 const global = {    // Object of the global state
     currentPage: window.location.pathname,  // To set the property of currentPage to window.location.pathname
 };
-console.log(global.currentPage);
 
 const homeDirectory = '/11-flix-app-project/flixx-app/';    // To set the home directory in a const
 
@@ -218,19 +280,16 @@ function init() {
     switch (global.currentPage) {   // To test the global.currentPage value
         case homeDirectory: // For the case /11-flix-app-project/flixx-app/ (index.html)
         case `${homeDirectory}index.html`:  // For the case /11-flix-app-project/flixx-app/index.html (index.html)
-            console.log('Home');
             displayPopularMovies();
             break;  // Without the brak statement the code would run further
         case `${homeDirectory}shows.html`:  // For the case /11-flix-app-project/flixx-app/shows.html (shows.html)
-            console.log('Show');
             displayPopularShows();
             break;
         case `${homeDirectory}movie-details.html`:  // For the case /11-flix-app-project/flixx-app/movie-details.html (movie-details.html)
-            console.log('Movie Details');
             displayMovieDetails();
             break;
         case `${homeDirectory}tv-details.html`:  // For the case /11-flix-app-project/flixx-app/tv-details.html (tv-details.html)
-            console.log('TV Details');
+            displayShowDetails();
             break;
         case `${homeDirectory}search.html`:  // For the case /11-flix-app-project/flixx-app/search.html (search.html)
             console.log('Search Page');

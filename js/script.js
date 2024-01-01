@@ -6,20 +6,52 @@
 // We using a library called swiper swiperjs.com - for the swiper slider
 
 
+const global = {    // Object of the global state
+  currentPage: window.location.pathname,  // To set the property of currentPage to window.location.pathname
+
+  search: {
+    term: '',
+    type: '',
+    page: 1,
+    totalPages: 1
+  },
+
+  api: {
+    apiKey: '123456789',
+    apiUrl: 'https://api.themoviedb.org/3/'
+  }
+};
+
+
 // Fetch data from TMDB API
 async function fetchAPIData(endpoint) {
-    const API_KEY = '123456789';
-    const API_URL = 'https://api.themoviedb.org/3/';
+    const API_KEY = global.api.apiKey;
+    const API_URL = global.api.apiUrl;
 
     showSpinner();
 
     const response = await fetch(`${API_URL}${endpoint}?api_key=${API_KEY}&language=en-US`);
-
     const data = await response.json();
 
     hideSpinner();
 
     return data;
+};
+
+
+// Make request to search
+async function searchAPIData() {
+  const API_KEY = global.api.apiKey;
+  const API_URL = global.api.apiUrl;
+
+  showSpinner();
+
+  const response = await fetch(`${API_URL}search/${global.search.type}?api_key=${API_KEY}&language=en-US&query=${global.search.term}`);
+  const data = await response.json();
+
+  hideSpinner();
+
+  return data;
 };
 
 
@@ -278,7 +310,7 @@ async function displaySlider() {
     <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}"/>
   </a>
   <h4 class="swiper-rating">
-    <i class="fas fa-star text-secondary"></i> ${movie.vote_average} / 10
+    <i class="fas fa-star text-secondary"></i> ${movie.vote_average.toFixed(1)} / 10
   </h4>`;
 
   document.querySelector('.swiper-wrapper').appendChild(div);
@@ -293,7 +325,7 @@ function initSwiper() {
     slidesPerView: 1, // we set it to 1 that we can specify breakpoints as well - for 500px (width) and up we set it to two - if it is 700px and up we set it to three - if it is 1200px and up we set it to four
     spaceBetween: 30,
     freeMode: true, // to click and drag it by ourself
-    loop: false, // because we (don't) want it to stop at the end
+    loop: true, // because we (don't) want it to stop at the end
     autoplay: {
       delay: 4000,  // to show a slide for 4 sec
       disableOnInteraction: false  // when you hover over it it stops
@@ -313,14 +345,37 @@ function initSwiper() {
 }
 
 
+// Search Movies / Shows
+async function search() {
+  const queryString = window.location.search; // ?type=movie&search-term=
+  const urlParams = new URLSearchParams(queryString); // URLSearchParams { type → "movie", "search-term" → "" }
+
+  global.search.type = urlParams.get('type'); // To set the type (movie or tv (show))
+  global.search.term = urlParams.get('search-term'); // To set the type (movie or tv (show)) - search-term comes from the search-form - see search.html
+
+  if (global.search.term !== '' && global.search.term !== null) {
+    const results = await searchAPIData();
+    console.log(results);
+  } else {
+    // alert('Please enter a search term');  // The default JS alert
+    showAlert('Please enter a search term');  // The customized alert
+  }
+
+}
+
+// Show alert
+function showAlert(message, className) {
+  const alertEl = document.createElement('div');
+  alertEl.classList.add('alert', className);  // To add the classes alert and className
+  alertEl.appendChild(document.createTextNode(message));
+  document.getElementById('alert').appendChild(alertEl);
+  setTimeout(() => alertEl.remove(), 3000);
+}
+
+
 // Page Router
 // We build a router to run specific JS scripts / specific functions on specific pages
 // The only thing we are doing in our JavaScript here is detecting which page we are on to add styling and make XHR requests relevant for the page we are on to get either movies or tv shows. 
-
-const global = {    // Object of the global state
-    currentPage: window.location.pathname,  // To set the property of currentPage to window.location.pathname
-};
-
 const homeDirectory = '/11-flix-app-project/flixx-app/';    // To set the home directory in a const
 
 // Init App
@@ -342,6 +397,7 @@ function init() {
             break;
         case `${homeDirectory}search.html`:  // For the case /11-flix-app-project/flixx-app/search.html (search.html)
             console.log('Search Page');
+            search();
             break;
     }
 

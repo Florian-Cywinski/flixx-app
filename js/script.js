@@ -478,8 +478,6 @@ function init() {
     switch (global.currentPage) {   // To test the global.currentPage value
         case homeDirectory: // For the case /11-flix-app-project/flixx-app/ (index.html)
         case `${homeDirectory}index.html`:  // For the case /11-flix-app-project/flixx-app/index.html (index.html)
-        case '/':
-        case '/index.html':
         case '':
         case 'index.html':
             displaySlider();
@@ -487,34 +485,22 @@ function init() {
             console.log(global.currentPage);
             break;  // Without the brak statement the code would run further
         case `${homeDirectory}shows.html`:  // For the case /11-flix-app-project/flixx-app/shows.html (shows.html)
-        case '/shows.html':
-        case '/shows':
         case 'shows.html':
-        case 'shows':
             displayPopularShows();
             console.log(global.currentPage);
             break;
         case `${homeDirectory}movie-details.html`:  // For the case /11-flix-app-project/flixx-app/movie-details.html (movie-details.html)
-        case '/movie-details.html':
-        case '/movie-details':
         case 'movie-details.html':
-        case 'movie-details':
             displayMovieDetails();
             console.log(global.currentPage);
             break;
         case `${homeDirectory}tv-details.html`:  // For the case /11-flix-app-project/flixx-app/tv-details.html (tv-details.html)
-        case '/tv-details.html':
-        case '/tv-details':
         case 'tv-details.html':
-        case 'tv-details':
             displayShowDetails();
             console.log(global.currentPage);
             break;
         case `${homeDirectory}search.html`:  // For the case /11-flix-app-project/flixx-app/search.html (search.html)
-        case '/search.html':
-        case '/search':
         case 'search.html':
-        case 'search':
             console.log(global.currentPage);
             search();
             break;

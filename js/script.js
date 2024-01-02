@@ -13,11 +13,12 @@ const global = {    // Object of the global state
     term: '',
     type: '',
     page: 1,
-    totalPages: 1
+    totalPages: 1,
+    totalResults: 0
   },
 
   api: {
-    apiKey: '123456789',
+    apiKey: '3fd2be6f0c70a2a598f084ddfb75487c',
     apiUrl: 'https://api.themoviedb.org/3/'
   }
 };
@@ -46,7 +47,7 @@ async function searchAPIData() {
 
   showSpinner();
 
-  const response = await fetch(`${API_URL}search/${global.search.type}?api_key=${API_KEY}&language=en-US&query=${global.search.term}`);
+  const response = await fetch(`${API_URL}search/${global.search.type}?api_key=${API_KEY}&language=en-US&query=${global.search.term}&page=${global.search.page}`);
   const data = await response.json();
 
   hideSpinner();
@@ -354,7 +355,11 @@ async function search() {
   global.search.term = urlParams.get('search-term'); // To set the type (movie or tv (show)) - search-term comes from the search-form - see search.html
 
   if (global.search.term !== '' && global.search.term !== null) {
-    const {results, total_pages, page} = await searchAPIData(); // results is an array of the first 20 results if 20 or more exists, total_pages is the number of result pages e.g. for the input 'orphan' ther are 10 pages, page is the current page e.g. 1
+    const {results, total_pages, page, total_results} = await searchAPIData(); // results is an array of the first 20 results if 20 or more exists, total_pages is the number of result pages e.g. for the input 'orphan' ther are 10 pages, page is the current page e.g. 1
+
+    global.search.page = page;
+    global.search.totalPages = total_pages;
+    global.search.totalResults = total_results;
 
     // To make sure whether there are results
     if (results.length === 0) {
@@ -374,6 +379,11 @@ async function search() {
 }
 
 function displaySearchResults(results) {
+    // Clear previous results
+    document.querySelector('#search-results').innerHTML = '';
+    document.querySelector('#search-results-heading').innerHTML = '';
+    document.querySelector('#pagination').innerHTML = '';
+
     // To create a div / card for every movie and put it to the DOM
     // results.slice(0, 5).forEach(movie => {    // To show the first 5 movies of the first 20 movies
     // results.slice(-5).forEach(movie => {    // To show the last 5 movies of the first 20 movies
@@ -403,9 +413,49 @@ function displaySearchResults(results) {
         </p>
       </div>`;
 
+      document.getElementById('search-results-heading').innerHTML = `
+      <h2>${results.length} of ${global.search.totalResults} Results for ${global.search.term}</h2>`
 
       document.getElementById('search-results').appendChild(div);
-  })  
+  });
+
+  displayPagination();
+};
+
+// Create & Display Pagination For Search
+function displayPagination() {
+  const div = document.createElement('div');
+  div.classList.add('pagination');
+  div.innerHTML = `
+  <button class="btn btn-primary" id="prev">Prev</button>
+  <button class="btn btn-primary" id="next">Next</button>
+  <div class="page-counter">Page ${global.search.page} of ${global.search.totalPages}</div>`;
+
+  document.getElementById('pagination').appendChild(div);
+
+  // Disable prev button if on first page
+  if (global.search.page === 1) {
+    document.getElementById('prev').disabled = true;
+  }
+
+  // Disable next button if on last page
+  if (global.search.page === global.search.totalPages) {
+    document.getElementById('next').disabled = true;
+  }
+
+  // Prev page
+  document.querySelector('#prev').addEventListener('click', async () => { // async because we are calling the searchAPIData
+    global.search.page--; // To decrement the page number
+    const {results, total_pages} = await searchAPIData(); 
+    displaySearchResults(results);
+  })
+
+  // Next page
+  document.querySelector('#next').addEventListener('click', async () => { // async because we are calling the searchAPIData
+    global.search.page++; // To increment the page number
+    const {results, total_pages} = await searchAPIData(); 
+    displaySearchResults(results);
+  })
 }
 
 // Show alert

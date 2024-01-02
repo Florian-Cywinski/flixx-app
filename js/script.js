@@ -354,17 +354,62 @@ async function search() {
   global.search.term = urlParams.get('search-term'); // To set the type (movie or tv (show)) - search-term comes from the search-form - see search.html
 
   if (global.search.term !== '' && global.search.term !== null) {
-    const results = await searchAPIData();
-    console.log(results);
+    const {results, total_pages, page} = await searchAPIData(); // results is an array of the first 20 results if 20 or more exists, total_pages is the number of result pages e.g. for the input 'orphan' ther are 10 pages, page is the current page e.g. 1
+
+    // To make sure whether there are results
+    if (results.length === 0) {
+      showAlert('No results founf');
+      return;      
+    }
+
+    displaySearchResults(results);  // To show the results on the DOM
+
+    document.getElementById('search-term').value = '';  // To clear the input field
+    
   } else {
     // alert('Please enter a search term');  // The default JS alert
-    showAlert('Please enter a search term');  // The customized alert
+    showAlert('Please enter a search term', 'alert-error');  // The customized alert
   }
 
 }
 
+function displaySearchResults(results) {
+    // To create a div / card for every movie and put it to the DOM
+    // results.slice(0, 5).forEach(movie => {    // To show the first 5 movies of the first 20 movies
+    // results.slice(-5).forEach(movie => {    // To show the last 5 movies of the first 20 movies
+    results.forEach(result => {
+      const div = document.createElement('div');
+      div.classList.add('card');
+      div.innerHTML = `
+      <a href="${global.search.type}-details.html?id=${result.id}">
+          ${  // We use the ternary-operator - if there is an image for this result : if there isn't an image for this result
+              result.poster_path
+                  ? `<img
+                  src="https://image.tmdb.org/t/p/w500/${result.poster_path}"
+                  class="card-img-top"
+                  alt="${global.search.type === 'movie' ? result.title : result.name}"
+                />`
+                  : `<img
+                  src="images/no-image.jpg"
+                  class="card-img-top"
+                  alt="${global.search.type === 'movie' ? result.title : result.name}"
+                />`
+          }
+      </a>
+      <div class="card-body">
+        <h5 class="card-title">${global.search.type === 'movie' ? result.title : result.name}</h5>
+        <p class="card-text">
+          <small class="text-muted">Release: ${global.search.type === 'movie' ? result.release_date : result.first_air_date}</small>
+        </p>
+      </div>`;
+
+
+      document.getElementById('search-results').appendChild(div);
+  })  
+}
+
 // Show alert
-function showAlert(message, className) {
+function showAlert(message, className = 'alert-error') {  // 'alert-error' is the default class for className
   const alertEl = document.createElement('div');
   alertEl.classList.add('alert', className);  // To add the classes alert and className
   alertEl.appendChild(document.createTextNode(message));

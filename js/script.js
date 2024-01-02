@@ -326,7 +326,7 @@ function initSwiper() {
     slidesPerView: 1, // we set it to 1 that we can specify breakpoints as well - for 500px (width) and up we set it to two - if it is 700px and up we set it to three - if it is 1200px and up we set it to four
     spaceBetween: 30,
     freeMode: true, // to click and drag it by ourself
-    loop: true, // because we (don't) want it to stop at the end
+    loop: false, // because we (don't) want it to stop at the end
     autoplay: {
       delay: 4000,  // to show a slide for 4 sec
       disableOnInteraction: false  // when you hover over it it stops
@@ -363,7 +363,7 @@ async function search() {
 
     // To make sure whether there are results
     if (results.length === 0) {
-      showAlert('No results founf');
+      showAlert('No results found');
       return;      
     }
 
@@ -475,55 +475,65 @@ const homeDirectory = '/11-flix-app-project/flixx-app/';    // To set the home d
 
 // Init App
 function init() {
-    switch (global.currentPage) {   // To test the global.currentPage value
-        case homeDirectory: // For the case /11-flix-app-project/flixx-app/ (index.html)
-        case `${homeDirectory}index.html`:  // For the case /11-flix-app-project/flixx-app/index.html (index.html)
-        case '':
-        case 'index.html':
-            displaySlider();
-            displayPopularMovies();
-            console.log(global.currentPage);
-            break;  // Without the brak statement the code would run further
-        case `${homeDirectory}shows.html`:  // For the case /11-flix-app-project/flixx-app/shows.html (shows.html)
-        case 'shows.html':
-            displayPopularShows();
-            console.log(global.currentPage);
-            break;
-        case `${homeDirectory}movie-details.html`:  // For the case /11-flix-app-project/flixx-app/movie-details.html (movie-details.html)
-        case 'movie-details.html':
-            displayMovieDetails();
-            console.log(global.currentPage);
-            break;
-        case `${homeDirectory}tv-details.html`:  // For the case /11-flix-app-project/flixx-app/tv-details.html (tv-details.html)
-        case 'tv-details.html':
-            displayShowDetails();
-            console.log(global.currentPage);
-            break;
-        case `${homeDirectory}search.html`:  // For the case /11-flix-app-project/flixx-app/search.html (search.html)
-        case 'search.html':
-            console.log(global.currentPage);
-            search();
-            break;
-    }
-
-    highlightActiveLink();
+  switch (global.currentPage) {   // To test the global.currentPage value
+      case homeDirectory: // For the case /11-flix-app-project/flixx-app/ (index.html)
+      case `${homeDirectory}index.html`:  // For the case /11-flix-app-project/flixx-app/index.html (index.html)
+      case '/':
+      case '/index.html':
+      case '':
+      case 'index.html':
+          displaySlider();
+          displayPopularMovies();
+          console.log(global.currentPage);
+          break;  // Without the brak statement the code would run further
+      case `${homeDirectory}shows.html`:  // For the case /11-flix-app-project/flixx-app/shows.html (shows.html)
+      case '/shows.html':
+      case '/shows':
+      case 'shows.html':
+      case 'shows':
+          displayPopularShows();
+          console.log(global.currentPage);
+          break;
+      case `${homeDirectory}movie-details.html`:  // For the case /11-flix-app-project/flixx-app/movie-details.html (movie-details.html)
+      case '/movie-details.html':
+      case '/movie-details':
+      case 'movie-details.html':
+      case 'movie-details':
+          displayMovieDetails();
+          console.log(global.currentPage);
+          break;
+      case `${homeDirectory}tv-details.html`:  // For the case /11-flix-app-project/flixx-app/tv-details.html (tv-details.html)
+      case '/tv-details.html':
+      case '/tv-details':
+      case 'tv-details.html':
+      case 'tv-details':
+          displayShowDetails();
+          console.log(global.currentPage);
+          break;
+      case `${homeDirectory}search.html`:  // For the case /11-flix-app-project/flixx-app/search.html (search.html)
+      case '/search.html':
+      case '/search':
+      case 'search.html':
+      case 'search':
+          console.log(global.currentPage);
+          search();
+          break;
+  }
+  highlightActiveLink();
 };
 
 
 // Active Link
 // Highlight active link
 function highlightActiveLink() {
-    const links = document.querySelectorAll('.nav-link');
-    links.forEach(link => {
-        if (link.getAttribute('href') === global.currentPage) {
-        // /11-flix-app-project/flixx-app === /11-flix-app-project/flixx-app/
-            link.classList.add('active');
-        // } else if (link.getAttribute('href') === global.currentPage.substr(0, global.currentPage.length-10)) {  // For the case global.currentPage = /11-flix-app-project/flixx-app/index.html
-        } else if (global.currentPage.includes('index.html') && link.getAttribute('href') === '/11-flix-app-project/flixx-app/') {  // For the case global.currentPage = /11-flix-app-project/flixx-app/index.html
-            link.classList.add('active');
-        }
-    });
+  const links = document.querySelectorAll('.nav-link');
+  links.forEach(link => {
+      if (link.getAttribute('href') === 'index.html' && global.currentPage.includes('index.html')) {
+          link.classList.add('active');
+      } else if (link.getAttribute('href') === 'shows.html' && global.currentPage.includes('shows.html')) {
+        link.classList.add('active');
+      }
+  });
 };
-
 
 document.addEventListener('DOMContentLoaded', init);    // DOMContentLoaded runs as soon as the DOM is parsed and loaded - it calls the function init()
